@@ -45,6 +45,10 @@ public class Analyseur {
 
     //region ================================ MÉTHODES ================================
 
+
+
+    //endregion MÉTHODES
+
     /*
     TODO - codage partie 1
     1) Lecture de fichiers .java (avec un buffered stream?)
@@ -62,6 +66,4 @@ public class Analyseur {
     • paquet_DC : densité de commentaires pour une classe : classe_DC = classe_CLOC / classe_LOC
 •    paquet_DC : densité de commentaires pour un paquet : paquet_DC = paquet_CLOC / paquet_LOC
      */
-
-    //endregion MÉTHODES
 }
