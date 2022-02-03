@@ -32,7 +32,7 @@ package org.ift3913.tp1;
  *
  * @author Pierre Janier Dubry et Rui Jie Liu
  */
-public enum AutomateCommentairesJava {
+public enum AutomateCommentairesJava implements AutomateCommentaires {
 
     /**
      * Valeur: tout caractère
@@ -40,6 +40,10 @@ public enum AutomateCommentairesJava {
      * État initial, aucun commentaire.
      */
     Initial {
+        public boolean estCommentaire() {
+            return false;
+        }
+
         public AutomateCommentairesJava prochainEtat(char prochainChar) {
             if (prochainChar == '/') {
                 return DebutCommentaire;
@@ -55,6 +59,10 @@ public enum AutomateCommentairesJava {
      * Début potentiel d'un commentaire.
      */
     DebutCommentaire {
+        public boolean estCommentaire() {
+            return false;
+        }
+
         public AutomateCommentairesJava prochainEtat(char prochainChar) {
             if (prochainChar == '/') {
                 return Monoligne;
@@ -72,6 +80,10 @@ public enum AutomateCommentairesJava {
      * Commentaire monoligne détecté.
      */
     Monoligne {
+        public boolean estCommentaire() {
+            return true;
+        }
+
         public AutomateCommentairesJava prochainEtat(char prochainChar) {
             if (prochainChar == '\n') {
                 return Initial;
@@ -89,6 +101,10 @@ public enum AutomateCommentairesJava {
      * Commentaire multiligne (bloc ou Javadoc) détecté.
      */
     Bloc {
+        public boolean estCommentaire() {
+            return true;
+        }
+
         public AutomateCommentairesJava prochainEtat(char prochainChar) {
             if (prochainChar == '/') {
                 return DebutBlocEtMonoligne;
@@ -106,6 +122,10 @@ public enum AutomateCommentairesJava {
      * Potentiellement la fin d'un bloc multilignes, ou le début d'un Javadoc.
      */
     FinBloc {
+        public boolean estCommentaire() {
+            return true;
+        }
+
         public AutomateCommentairesJava prochainEtat(char prochainChar) {
             if (prochainChar == '/') {
                 return Initial;
@@ -123,6 +143,10 @@ public enum AutomateCommentairesJava {
      * Début potentiel d'un commentaire bloc/javadoc multilignes à l'intérieur d'un commentaire monoligne.
      */
     DebutMonoligneEtBloc {
+        public boolean estCommentaire() {
+            return true;
+        }
+
         public AutomateCommentairesJava prochainEtat(char prochainChar) {
             if (prochainChar == '\n') {
                 return Initial;
@@ -140,6 +164,10 @@ public enum AutomateCommentairesJava {
      * Un commentaire monoligne suivi d'un commentaire bloc/javadoc multilignes.
      */
     MonoligneEtBloc {
+        public boolean estCommentaire() {
+            return true;
+        }
+
         public AutomateCommentairesJava prochainEtat(char prochainChar) {
             if (prochainChar == '\n') {
                 return Bloc;
@@ -157,6 +185,10 @@ public enum AutomateCommentairesJava {
      * Fin potentiel d'un commentaire bloc/Javadoc multilignes à l'intérieur d'un commentaire monoligne.
      */
     FinMonoligneEtBloc {
+        public boolean estCommentaire() {
+            return true;
+        }
+
         public AutomateCommentairesJava prochainEtat(char prochainChar) {
             if (prochainChar == '\n') {
                 return Bloc;
@@ -176,6 +208,10 @@ public enum AutomateCommentairesJava {
      * Début potentiel d'un commentaire monoligne à l'intérieur d'un commentaire bloc/javadoc multilignes.
      */
     DebutBlocEtMonoligne {
+        public boolean estCommentaire() {
+            return true;
+        }
+
         public AutomateCommentairesJava prochainEtat(char prochainChar) {
             if (prochainChar == '/') {
                 return BlocEtMonoligne;
@@ -191,6 +227,10 @@ public enum AutomateCommentairesJava {
      * Un commentaire monoligne à l'intérieur d'un commentaire bloc/javadoc multilignes.
      */
     BlocEtMonoligne {
+        public boolean estCommentaire() {
+            return true;
+        }
+
         public AutomateCommentairesJava prochainEtat(char prochainChar) {
             if (prochainChar == '\n') {
                 return Bloc;
@@ -208,6 +248,10 @@ public enum AutomateCommentairesJava {
      * Fin potentiel d'un commentaire bloc/Javadoc multilignes à l'intérieur d'un commentaire monoligne.
      */
     FinBlocEtMonoligne {
+        public boolean estCommentaire() {
+            return true;
+        }
+
         public AutomateCommentairesJava prochainEtat(char prochainChar) {
             if (prochainChar == '\n') {
                 return Bloc;
@@ -219,12 +263,5 @@ public enum AutomateCommentairesJava {
                 return BlocEtMonoligne;
             }
         }
-    };
-
-    /**
-     * Obtenir le prochain état de l'automate en soumettant le caractère suivant.
-     * @param prochainChar le caractère suivant le curseur actuel.
-     * @return l'état suivant de l'automate.
-     */
-    public abstract AutomateCommentairesJava prochainEtat(char prochainChar);
+    }
 }

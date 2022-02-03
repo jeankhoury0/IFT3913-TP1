@@ -33,7 +33,16 @@ public class TP1 {
             System.exit(3);     // Cohérent avec code erreur Win32: 3=ERROR_PATH_NOT_FOUND
         }
 
-        // TODO: Faire appel à une méthode d'analyse avec le chemin de base
+        if (cheminBase.isDirectory()) {
+            // Analyse paquet
+            ResultatAnalysePaquet resultat = AnalyserPaquet(cheminBase);
+            ImprimerStatistiquesPaquet(resultat);
+        }
+        else {
+            // Analyse fichier simple
+            ResultatAnalyseFichier resultat = AnalyserFichier(cheminBase);
+            ImprimerStatistiquesFichier(resultat);
+        }
     }
 
     //endregion MAIN
@@ -49,6 +58,50 @@ public class TP1 {
     //endregion CHAMPS
 
     //region ================================ FONCTIONS ================================
+
+    /**
+     * Obtenir l'extension d'un fichier, en minuscules, à partir de son chemin.
+     * Cette fonction retourne la chaîne de caractère après et excluant le point final (délimiteur d'extension).
+     * <br>
+     * Si le fichier ne possède pas d'extension valide, cette fonction retourne {@code null}.
+     * @param cheminFichier le chemin du fichier
+     * @return l'extension du fichier, en minuscules, sans le point (délimiteur d'extension). {@code null} si n'existe pas.
+     */
+    public static String ObtenirExtensionFichier(Path cheminFichier) {
+        String nomFichier = cheminFichier.getFileName().toString();
+        int indexPointExtension = nomFichier.lastIndexOf(".");
+        if (indexPointExtension > 0 && nomFichier.length() > indexPointExtension) {
+            return nomFichier.substring(indexPointExtension + 1).toLowerCase(Locale.ROOT);
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Obtenir le nom complet du paquet d'un fichier ou dossier à partir de son chemin relatif au chemin du dossier/paquet de base.
+     * @param paquetBase le chemin du paquet de base
+     * @param paquet le chemin du fichier/dossier spécifié
+     * @return le nom complet du paquet, basé sur le chemin relatif
+     */
+    public static String ObtenirNomPaquet(Path paquetBase, Path paquet) {
+        if (!Files.isDirectory(paquetBase)) {
+            return Files.isDirectory(paquet) ? paquet.getFileName().toString() : "";
+        }
+        else if (paquetBase.equals(paquet)) {
+            return paquetBase.getFileName().toString();
+        }
+
+        String cheminRelatif = paquetBase.toUri().relativize(paquet.toUri()).toString();
+
+        if (Objects.equals(cheminRelatif, paquet.toString())) {
+            // paquetBase ne fait pas partie de paquet
+            return Files.isDirectory(paquet) ? paquet.getFileName().toString() : "";
+        }
+
+        // Scénario normal: paquet = paquetBase + cheminRelatif
+        cheminRelatif = cheminRelatif.replaceAll(File.pathSeparator, ".");
+        return paquetBase.getFileName().toString() + "." + cheminRelatif;
+    }
 
     static ResultatAnalyseFichier AnalyserFichier(File fichier) {
         // TODO: analyse d'un fichier (peu importe l'extension) utilisant une instance d'AnalyseurCommentaires
@@ -76,22 +129,14 @@ public class TP1 {
         return new ResultatAnalysePaquet(resultats);
     }
 
-    /**
-     * Obtenir l'extension d'un fichier, en minuscules, à partir de son chemin.
-     * Cette fonction retourne la chaîne de caractère après et excluant le point final (délimiteur d'extension).
-     * <br>
-     * Si le fichier ne possède pas d'extension valide, cette fonction retourne {@code null}.
-     * @param cheminFichier le chemin du fichier
-     * @return l'extension du fichier, en minuscules, sans le point (délimiteur d'extension). {@code null} si n'existe pas.
-     */
-    public static String ObtenirExtensionFichier(Path cheminFichier) {
-        String nomFichier = cheminFichier.getFileName().toString();
-        int indexPointExtension = nomFichier.lastIndexOf(".");
-        if (indexPointExtension > 0 && nomFichier.length() > indexPointExtension) {
-            return nomFichier.substring(indexPointExtension + 1).toLowerCase(Locale.ROOT);
-        } else {
-            return null;
-        }
+    static void ImprimerStatistiquesFichier(ResultatAnalyseFichier resultat) {
+        // TODO: imprimer les statistiques de l'analyse fichier
+
+    }
+
+    static void ImprimerStatistiquesPaquet(ResultatAnalysePaquet resultat) {
+        // TODO: analyser le nom des paquets & imprimer les statistiques de l'analyse paquet
+
     }
 
     //endregion FONCTIONS

@@ -7,6 +7,10 @@ import java.io.FileReader;
 
 /**
  * Un analyseur de commentaires pour un seul fichier de code.
+ * <br>
+ * Cet analyseur est agnostique sur le langage de programmation à analyser.
+ * Cependant, il faut fournir à l'analyseur l'automate correspondant au code
+ * à analyser pour produire des résultats sensibles.
  *
  * @author Pierre Janier Dubry et Rui Jie Liu
  */
@@ -24,13 +28,17 @@ public class AnalyseurCommentaires {
     // TODO: utiliser ce BufferedReader pour lire le fichier à analyser
     private BufferedReader fileStream;
 
+    private final AutomateCommentaires automate;
+
     //endregion CHAMPS
 
     //region ================================ CONSTRUCTEUR ================================
 
-    public AnalyseurCommentaires(File fichier) throws FileNotFoundException {
+    public AnalyseurCommentaires(File fichier, AutomateCommentaires automate) throws FileNotFoundException {
         if (!fichier.exists()) throw new FileNotFoundException("Le chemin fourni ne correspond pas à un fichier valide!");
         this.fichier = fichier;
+
+        this.automate = automate;
     }
 
     //endregion CONSTRUCTEUR
@@ -38,12 +46,12 @@ public class AnalyseurCommentaires {
     //region ================================ MÉTHODES ================================
 
     public ResultatAnalyseFichier Analyser() throws FileNotFoundException {
-        if (fileStream == null) fileStream = new BufferedReader(new FileReader(fichier));
-
-        try {
-            fileStream = new BufferedReader(new FileReader(fichier));
-        } catch (FileNotFoundException e) {
-            throw new FileNotFoundException("Le fichier à analyser n'existe plus sur le disque!");
+        if (fileStream == null) {
+            try {
+                fileStream = new BufferedReader(new FileReader(fichier));
+            } catch (FileNotFoundException e) {
+                throw new FileNotFoundException("Le fichier à analyser n'existe plus sur le disque!");
+            }
         }
 
         // TODO: utiliser cette méthode comme point de départ, analyser tout le contenu du fichier donné utilisant l'automate fini
