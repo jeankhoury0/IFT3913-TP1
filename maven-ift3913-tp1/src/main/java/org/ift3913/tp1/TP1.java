@@ -44,6 +44,10 @@ public class TP1 {
             ResultatAnalyseFichier resultat = analyserFichier(cheminBase);
             imprimerStatistiquesFichier(resultat);
         }
+
+        // on créer le fichier csv à partir des resultats analyser et on créer le fichier de sortie
+        creerCSV();
+
     }
 
     //endregion MAIN
@@ -59,6 +63,27 @@ public class TP1 {
     //endregion CHAMPS
 
     //region ================================ FONCTIONS ================================
+
+    /**
+     * Cette méthode prend la collection de résultat préalablement analyser et extrait les
+     * informations contenues puis les places dans un fichier csv dont le chemin de création
+     * est soit au niveau de la racine de dossier/fichier analyser soit dans un chemin
+     * personalisé.
+     * Le nom du CSV est  par défaut le nom du premier dossier ou du fichier qui est rentré
+     * en argument.
+     * TODO créer la signature avec le nom du fichier/dossier, le ou les resultats analysé et l'output path
+     */
+    static void creerCSV(){
+        // on vérifie qu'un fichier csv du même nom n'existe pas déjà
+        // sinon on le met à jour en écrasant les données
+        // CSVWriter csvWriter = new CSVWriter(new FileWriter("resultat.csv"));
+
+        // on extrait les données des résultats grâce à une méthode des resultats
+        // on écrit les données dans le csv avec openCSV
+        // csvWriter.writeNext(new String[]{"1", "jan", "Male", "20"});
+
+        // dans quel format écrire les données ?
+    }
 
     static ResultatAnalyseFichier analyserFichier(File fichier) {
         // TODO: analyse d'un fichier (peu importe l'extension) utilisant une instance d'AnalyseurCommentaires

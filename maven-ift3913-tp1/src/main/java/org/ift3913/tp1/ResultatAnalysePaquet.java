@@ -9,6 +9,7 @@ import java.util.Collection;
  * @author Pierre Janier Dubry et Rui Jie Liu
  */
 public record ResultatAnalysePaquet(Collection<ResultatAnalyseFichier> resultatsFichiers) {
+
     public int LigneCodesTotal() {
         return resultatsFichiers.stream().mapToInt(ResultatAnalyseFichier::lignesDeCode).sum();
     }
