@@ -20,8 +20,10 @@ public class TP1 {
 
         // Analyse des arguments en entrée
         File cheminBase = null;
+
         for (String arg : args) {
             // Vérification de la validité du chemin donné. Aucune analyse du type de fichier ici.
+            // Il n'est pas nécessaire de vérifier qu'il s'agisse bien du dossier racine.
             File potentialPath = new File(arg);
             if (potentialPath.exists()) {
                 cheminBase = potentialPath;
@@ -34,14 +36,13 @@ public class TP1 {
         }
 
         if (cheminBase.isDirectory()) {
-            // Analyse paquet
-            ResultatAnalysePaquet resultat = AnalyserPaquet(cheminBase);
-            ImprimerStatistiquesPaquet(resultat);
-        }
-        else {
-            // Analyse fichier simple
-            ResultatAnalyseFichier resultat = AnalyserFichier(cheminBase);
-            ImprimerStatistiquesFichier(resultat);
+            // Analyse paquet : parcours recursif du contenue du dossier
+            ResultatAnalysePaquet resultat = analyserPaquet(cheminBase);
+            imprimerStatistiquesPaquet(resultat);
+        } else {
+            // Analyse fichier simple : pas d'architecture à parcourir
+            ResultatAnalyseFichier resultat = analyserFichier(cheminBase);
+            imprimerStatistiquesFichier(resultat);
         }
     }
 
@@ -59,15 +60,56 @@ public class TP1 {
 
     //region ================================ FONCTIONS ================================
 
+    static ResultatAnalyseFichier analyserFichier(File fichier) {
+        // TODO: analyse d'un fichier (peu importe l'extension) utilisant une instance d'AnalyseurCommentaires
+        return null;
+    }
+
+    /**
+     * Cette méthode analyse récursivement tous les fichiers dont l'extension est supportés
+     * par le programme contenus dans le dossier {@param dossierPaquet}.
+     *
+     * @param dossierPaquet le fichier du dossier.
+     */
+    static ResultatAnalysePaquet analyserPaquet(File dossierPaquet) {
+
+        // Conversion des extensions supportées en un ensemble permettant de dédupliquer
+        // les éléments, de convertir tout en minuscule, et de faire appel à la méthode contains()
+        Set<String> ExtensionsSupportees = new HashSet<>(Arrays.stream(EXTENSIONS_FICHIERS)
+                .map(String::toLowerCase).toList());
+
+        // Cette collection contiendra tous les résultats des analyses de commentaires sur
+        // les fichiers individuellement
+        Collection<ResultatAnalyseFichier> resultats = new LinkedList<>();
+
+        // peupler la collection resultats en analysant chaque fichier de code
+        try {
+            // Utiliser la méthode du stream Java pour traverser tous les fichiers .java à partir du dossier racine
+            // Dans un premier temps, on traverse l'architecture, puis on filtre les fichiers et enfin on l'analyse.
+            // Après l'analyse, on sauvegarde les résultats dans la collection resulats.
+            Files.walk(dossierPaquet.toPath())
+                    .filter(cheminFichier -> ExtensionsSupportees.contains(obtenirExtensionFichier(cheminFichier)))
+                    .forEach(cheminFichier -> resultats.add(analyserFichier(cheminFichier.toFile())));
+        } catch (IOException e) {
+            System.err.println("Une erreur s'est produite lors du parcours des dossiers à la recherche des fichiers Java: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return new ResultatAnalysePaquet(resultats);
+    }
+
     /**
      * Obtenir l'extension d'un fichier, en minuscules, à partir de son chemin.
-     * Cette fonction retourne la chaîne de caractère après et excluant le point final (délimiteur d'extension).
+     * Cette fonction retourne la chaîne de caractère après et excluant le point final
+     * (délimiteur d'extension).
      * <br>
      * Si le fichier ne possède pas d'extension valide, cette fonction retourne {@code null}.
+     *
      * @param cheminFichier le chemin du fichier
-     * @return l'extension du fichier, en minuscules, sans le point (délimiteur d'extension). {@code null} si n'existe pas.
+     * @return l'extension du fichier, en minuscules, sans le point (délimiteur d'extension).
+     * {@code null} si n'existe pas.
      */
-    public static String ObtenirExtensionFichier(Path cheminFichier) {
+    public static String obtenirExtensionFichier(Path cheminFichier) {
         String nomFichier = cheminFichier.getFileName().toString();
         int indexPointExtension = nomFichier.lastIndexOf(".");
         if (indexPointExtension > 0 && nomFichier.length() > indexPointExtension) {
@@ -78,16 +120,17 @@ public class TP1 {
     }
 
     /**
-     * Obtenir le nom complet du paquet d'un fichier ou dossier à partir de son chemin relatif au chemin du dossier/paquet de base.
+     * Obtenir le nom complet du paquet d'un fichier ou dossier à partir de son chemin relatif
+     * au chemin du dossier/paquet de base.
+     *
      * @param paquetBase le chemin du paquet de base
-     * @param paquet le chemin du fichier/dossier spécifié
+     * @param paquet     le chemin du fichier/dossier spécifié
      * @return le nom complet du paquet, basé sur le chemin relatif
      */
-    public static String ObtenirNomPaquet(Path paquetBase, Path paquet) {
+    public static String obtenirNomPaquet(Path paquetBase, Path paquet) {
         if (!Files.isDirectory(paquetBase)) {
             return Files.isDirectory(paquet) ? paquet.getFileName().toString() : "";
-        }
-        else if (paquetBase.equals(paquet)) {
+        } else if (paquetBase.equals(paquet)) {
             return paquetBase.getFileName().toString();
         }
 
@@ -103,38 +146,12 @@ public class TP1 {
         return paquetBase.getFileName().toString() + "." + cheminRelatif;
     }
 
-    static ResultatAnalyseFichier AnalyserFichier(File fichier) {
-        // TODO: analyse d'un fichier (peu importe l'extension) utilisant une instance d'AnalyseurCommentaires
-    }
-
-    static ResultatAnalysePaquet AnalyserPaquet(File dossierPaquet) {
-        /* Conversion des extensions supportées en un ensemble permet de dédupliquer les éléments,
-         * convertir tout en minuscule, et faire appel à la méthode contains() */
-        Set<String> ExtensionsSupportees = new HashSet<>(Arrays.stream(EXTENSIONS_FICHIERS).map(String::toLowerCase).toList());
-
-        // Cette collection contiendrra tous les résultats des analyses de commentaires sur les fichiers individuels
-        Collection<ResultatAnalyseFichier> resultats = new LinkedList<>();
-
-        // populer la collection resultats en analysant chaque fichier de code
-        try {
-            // Utiliser la méthode du stream Java pour traverser tous les fichiers .java à partir du dossier racine
-            Files.walk(dossierPaquet.toPath())
-                    .filter( cheminFichier -> ExtensionsSupportees.contains(ObtenirExtensionFichier(cheminFichier)) )
-                    .forEach( cheminFichier -> resultats.add(AnalyserFichier(cheminFichier.toFile())) );
-        } catch (IOException e) {
-            System.err.println("Une erreur s'est produite lors de la traverse des dossiers à la recherche des fichiers Java: " + e.getMessage());
-            e.printStackTrace();
-        }
-
-        return new ResultatAnalysePaquet(resultats);
-    }
-
-    static void ImprimerStatistiquesFichier(ResultatAnalyseFichier resultat) {
+    static void imprimerStatistiquesFichier(ResultatAnalyseFichier resultat) {
         // TODO: imprimer les statistiques de l'analyse fichier
 
     }
 
-    static void ImprimerStatistiquesPaquet(ResultatAnalysePaquet resultat) {
+    static void imprimerStatistiquesPaquet(ResultatAnalysePaquet resultat) {
         // TODO: analyser le nom des paquets & imprimer les statistiques de l'analyse paquet
 
     }
