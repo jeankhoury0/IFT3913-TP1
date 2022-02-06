@@ -24,10 +24,13 @@ public class TP1 {
         for (String arg : args) {
             // Vérification de la validité du chemin donné. Aucune analyse du type de fichier ici.
             // Il n'est pas nécessaire de vérifier qu'il s'agisse bien du dossier racine.
+            // TODO le premier argument est le fichier ou le dossier à analyser et le second est la sortie
+            // si il y a un seul argument alors la sortie par défaut est le même que celui du premier argument
             File potentialPath = new File(arg);
             if (potentialPath.exists()) {
                 cheminBase = potentialPath;
             }
+            // TODO: refaire les entrées des arguments d'appels pour tenir en compte des "pointeurs" aux arguments
         }
 
         if (cheminBase == null) {
@@ -105,7 +108,8 @@ public class TP1 {
 
         // Cette collection contiendra tous les résultats des analyses de commentaires sur
         // les fichiers individuellement
-        Collection<ResultatAnalyseFichier> resultats = new LinkedList<>();
+//        Collection<ResultatAnalyseFichier> resultats = new LinkedList<>();
+        Hashtable<String, Collection<ResultatAnalyseFichier>> resultats = new Hashtable<>();
 
         // peupler la collection resultats en analysant chaque fichier de code
         try {
@@ -114,7 +118,20 @@ public class TP1 {
             // Après l'analyse, on sauvegarde les résultats dans la collection resulats.
             Files.walk(dossierPaquet.toPath())
                     .filter(cheminFichier -> ExtensionsSupportees.contains(obtenirExtensionFichier(cheminFichier)))
-                    .forEach(cheminFichier -> resultats.add(analyserFichier(cheminFichier.toFile())));
+                    .forEach(cheminFichier -> {
+                        String nomPaquet = obtenirNomPaquet(dossierPaquet.toPath(), cheminFichier);
+                        if (!resultats.containsKey(nomPaquet)) {
+                            resultats.put(nomPaquet, new LinkedList<>());
+                        }
+
+                        resultats.get(nomPaquet).add(analyserFichier(cheminFichier.toFile()));
+                    });
+
+
+            // récupérer le dossier ROOT et instancier un arbre dont les noeuds correspondraient aux
+            // sous dossier dans ROOT. Chaque noeud de l'arbre est un paquet à analyser et chaque noeud
+            // de l'arbre contient seulement les fichiers lui étant associés.
+
         } catch (IOException e) {
             System.err.println("Une erreur s'est produite lors du parcours des dossiers à la recherche des fichiers Java: " + e.getMessage());
             e.printStackTrace();
@@ -135,6 +152,8 @@ public class TP1 {
      * {@code null} si n'existe pas.
      */
     public static String obtenirExtensionFichier(Path cheminFichier) {
+        if (Files.isDirectory(cheminFichier)) return null;
+
         String nomFichier = cheminFichier.getFileName().toString();
         int indexPointExtension = nomFichier.lastIndexOf(".");
         if (indexPointExtension > 0 && nomFichier.length() > indexPointExtension) {
@@ -154,11 +173,14 @@ public class TP1 {
      */
     public static String obtenirNomPaquet(Path paquetBase, Path paquet) {
         if (!Files.isDirectory(paquetBase)) {
+            // si paquetBase n'est pas un dossier (chemin aléatoire)
             return Files.isDirectory(paquet) ? paquet.getFileName().toString() : "";
         } else if (paquetBase.equals(paquet)) {
+            // si paquetBase == paquet
             return paquetBase.getFileName().toString();
         }
 
+        // on récupère le chemin du fichier pré-filtré concerné
         String cheminRelatif = paquetBase.toUri().relativize(paquet.toUri()).toString();
 
         if (Objects.equals(cheminRelatif, paquet.toString())) {
