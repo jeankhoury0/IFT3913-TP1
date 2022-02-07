@@ -8,7 +8,7 @@ package org.ift3913.tp1.automates;
  *
  * @author Pierre Janier Dubry et Rui Jie Liu
  */
-public enum AutomateStrings implements AutomateJava {
+public enum AutomateStrings implements AutomateEtat {
     /**
      * Valeur: tout caractère
      * <br>

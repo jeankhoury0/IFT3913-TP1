@@ -8,19 +8,14 @@ package org.ift3913.tp1.automates;
  *
  * @author Pierre Janier Dubry et Rui Jie Liu
  */
-public enum AutomateTernaire implements AutomateJava {
+public enum AutomateTernaire implements AutomateTransition {
     /**
      * Valeur: tout caractère
      * <br>
      * État initial, aucun opérateur ternaire.
      */
     Initial {
-        public boolean valide() {
-            return false;
-        }
-
-        @Override
-        public AutomateTernaire prochainEtat(char prochainChar) {
+        public ResultatTransitionAutomate prochainEtat(char prochainChar) {
             return null;
         }
     }

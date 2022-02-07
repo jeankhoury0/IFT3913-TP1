@@ -36,7 +36,7 @@ package org.ift3913.tp1.automates;
  *
  * @author Pierre Janier Dubry et Rui Jie Liu
  */
-public enum AutomateCommentaires implements AutomateJava {
+public enum AutomateCommentaires implements AutomateEtat {
 
     /**
      * Valeur: tout caractère

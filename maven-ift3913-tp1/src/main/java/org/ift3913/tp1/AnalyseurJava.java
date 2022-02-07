@@ -3,6 +3,9 @@ package org.ift3913.tp1;
 import org.ift3913.tp1.automates.*;
 
 import java.io.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Un analyseur de codes Java pour un seul fichier de code.
@@ -27,14 +30,12 @@ public class AnalyseurJava {
     // TODO: utiliser ce BufferedReader pour lire le fichier à analyser
     private BufferedReader fileStream;
 
-    private AutomateJava etatAutomateCommentaires;
-    private AutomateJava etatAutomateStrings;
-    private AutomateJava etatAutomateTernaire;
-    private AutomateJava etatAutomateIf;
-    private AutomateJava etatAutomateElse;
-    private AutomateJava etatAutomateWhile;
-    private AutomateJava etatAutomateFor;
-    private AutomateJava etatAutomateSwitch;
+    private AutomateEtat etatAutomateCommentaires;
+    private AutomateEtat etatAutomateStrings;
+    private AutomateTransition etatAutomateTernaire;
+    private AutomateIdentifiant automateIdentifiant;
+    private final Set<String> identifiantsStructuresDeControle = new HashSet<>(
+            Arrays.asList("if", "else", "while", "for", "switch"));
 
     //endregion CHAMPS
 
@@ -54,11 +55,7 @@ public class AnalyseurJava {
         this.etatAutomateCommentaires = AutomateCommentaires.Initial;
         this.etatAutomateStrings = AutomateStrings.Initial;
         this.etatAutomateTernaire = AutomateTernaire.Initial;
-        this.etatAutomateIf = AutomateIf.Initial;
-        this.etatAutomateElse = AutomateElse.Initial;
-        this.etatAutomateWhile = AutomateWhile.Initial;
-        this.etatAutomateFor = AutomateFor.Initial;
-        this.etatAutomateSwitch = AutomateSwitch.Initial;
+        this.automateIdentifiant = new AutomateIdentifiant();
     }
 
     public ResultatAnalyseFichier analyser() throws FileNotFoundException {
