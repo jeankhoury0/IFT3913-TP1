@@ -1,29 +1,36 @@
 package org.ift3913.tp1;
 
 import java.util.Collection;
-import java.util.Dictionary;
+import java.util.Iterator;
 
 /**
- * Données obtenues après une analyse de commentaires auprès d'un paquet (dossier)
+ * Données obtenues après une analyse de commentaires auprès d'un seul paquet (dossier)
  * contenant possiblement plusieurs fichiers de code.
- * Les résultats d'analyse de chaque fichier sont stockés à l'intérieur d'un dictionnaire:
- * nom du paquet (String) : liste de toutes les classes dans ce paquet Collection<ResultatAnalyseFichier>
+ * Ce conteneur de données est supposé de contenir uniquement les fichiers appartenant
+ * au paquet spécifié, et non aux sous-paquets.
  *
+ * @param resultatsFichiers un dictionnaire couplant les noms des paquets et
  * @author Pierre Janier Dubry et Rui Jie Liu
  */
-public record ResultatAnalysePaquet(Dictionary<String, Collection<ResultatAnalyseFichier>> resultatsFichiers) {
+public record ResultatAnalysePaquet(Collection<ResultatAnalyseFichier> resultatsFichiers, String nomPaquet, String chemin) {
 
-    public int ligneCodesTotal() {
-        int total = 0;
-        resultatsFichiers.elements().asIterator().forEachRemaining(x -> total += x.stream().mapToInt(ResultatAnalyseFichier::lignesDeCode).sum());
-        return total;
+    /**
+     * Obtenir la statistique de lignes de code totales à travers tous les fichiers du paquet.
+     * @return le nombre de lignes de code en total
+     */
+    public int ligneCodesPaquet() {
+        return resultatsFichiers.stream().mapToInt(ResultatAnalyseFichier::lignesDeCode).sum();
     }
 
-    public int lignesCommentairesTotal() {
+    /**
+     * Obtenir la statistique de lignes de commentaires totales à travers tous les fichiers du paquet.
+     * @return le nombre de lignes de code en total
+     */
+    public int lignesCommentairesPaquet() {
         return resultatsFichiers.stream().mapToInt(ResultatAnalyseFichier::lignesCommentaires).sum();
     }
 
     public double DensiteCommentaires() {
-        return (double) lignesCommentairesTotal() / (double) ligneCodesTotal();
+        return (double) lignesCommentairesPaquet() / (double) ligneCodesPaquet();
     }
 }

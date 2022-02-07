@@ -29,6 +29,10 @@ package org.ift3913.tp1;
  * L'implémentation concrète est effectuée en groupant les blocs multilignes et les Javadocs
  * en un seul mode, pour réduire la complexité tout en restant à l'intérieur de la
  * portée de ce projet.
+ * <br><br>
+ * Pour simplifier la spécification, <b>cet automate n'accepte que les caractères {@code \n} comme retour de ligne.</b>
+ * Ainsi, c'est au rôle de l'utilisateur de cet automate de fournir ce retour de ligne ({@code \n}) à chaque fois
+ * qu'une fin de ligne est rendue.
  *
  * @author Pierre Janier Dubry et Rui Jie Liu
  */

@@ -1,9 +1,6 @@
 package org.ift3913.tp1;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.*;
 
 /**
  * Un analyseur de commentaires pour un seul fichier de code.
@@ -28,34 +25,79 @@ public class AnalyseurCommentaires {
     // TODO: utiliser ce BufferedReader pour lire le fichier à analyser
     private BufferedReader fileStream;
 
-    private final AutomateCommentaires automate;
+    private AutomateCommentaires etatAutomate;
 
     //endregion CHAMPS
 
     //region ================================ CONSTRUCTEUR ================================
 
-    public AnalyseurCommentaires(File fichier, AutomateCommentaires automate) throws FileNotFoundException {
+    public AnalyseurCommentaires(File fichier, AutomateCommentaires etatInitialAutomate) throws FileNotFoundException {
         if (!fichier.exists()) throw new FileNotFoundException("Le chemin fourni ne correspond pas à un fichier valide!");
         this.fichier = fichier;
 
-        this.automate = automate;
+        this.etatAutomate = etatInitialAutomate;
     }
 
     //endregion CONSTRUCTEUR
 
     //region ================================ MÉTHODES ================================
 
-    public ResultatAnalyseFichier Analyser() throws FileNotFoundException {
-        if (fileStream == null) {
-            try {
-                fileStream = new BufferedReader(new FileReader(fichier));
-            } catch (FileNotFoundException e) {
-                throw new FileNotFoundException("Le fichier à analyser n'existe plus sur le disque!");
+    public ResultatAnalyseFichier analyser() throws FileNotFoundException {
+        // Statistiques à analyser
+        int lignesDeCode = 1;
+        int lignesCommentaires = 0;
+
+        try {
+            fileStream = new BufferedReader(new FileReader(fichier));
+
+            String currentLine;
+            while ((currentLine = fileStream.readLine()) != null) {
+                currentLine = currentLine.strip();
+                // Si la ligne est vide (e.g. seulement des espaces blancs), on ne va pas la compter
+                if (currentLine.equals("")) continue;
+
+                // Un loquet (latch) pour verrouiller l'incrémentation de la statistique lignesCommentaires
+                // lorsqu'on est toujours sur la même ligne
+                boolean isSameLine = false;
+
+                // traiter la ligne caractère-par-caractère à l'intérieur de l'automate
+                for (int i = 0; i < currentLine.length(); i++) {
+                    char nextChar = currentLine.charAt(i);
+
+                    // Obtenir le prochain état de l'automate
+                    etatAutomate = etatAutomate.prochainEtat(nextChar);
+
+                    if (!isSameLine && etatAutomate.estCommentaire()) {
+                        // cette ligne contient un commentaire
+                        lignesCommentaires++;
+                        isSameLine = true;
+                    }
+                }
+
+                // Une fois le traitement caractère-par-caractère pour la ligne est finie,
+                // soumettre manuellement le caractère de retour de ligne à l'automate
+                // Ce caractère est simplement un signal à l'automate qu'une fin de ligne est atteinnte
+                // et indépendant de la plateforme sur lequel le programme est exécuté.
+                etatAutomate = etatAutomate.prochainEtat('\n');
+
+                lignesDeCode++;
             }
+        } catch (FileNotFoundException e) {
+            throw new FileNotFoundException("Le fichier à analyser n'existe plus sur le disque!");
+        } catch (IOException e) {
+            System.out.println("Une erreur s'est produite lors de la lecture du fichier à analyser: " + e.getMessage());
+            e.printStackTrace();
         }
 
-        // TODO: utiliser cette méthode comme point de départ, analyser tout le contenu du fichier donné utilisant l'automate fini
-        // L'écriture d'autres méthodes internes peut s'avérer nécessaire
+        try {
+            if (fileStream != null) fileStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        String extensionFichier = "." + Utils.obtenirExtensionFichier(fichier.toPath());
+        String nomClasse = fichier.getName().replace(extensionFichier, "");
+        return new ResultatAnalyseFichier(nomClasse, lignesDeCode, lignesCommentaires, fichier.toPath());
     }
 
     //endregion MÉTHODES
