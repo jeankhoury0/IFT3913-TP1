@@ -1,5 +1,7 @@
 package org.ift3913.tp1;
 
+import org.ift3913.tp1.automates.AutomateCommentaires;
+
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -97,7 +99,7 @@ public class TP1 {
 
     static ResultatAnalyseFichier analyserFichier(File fichier) {
         try {
-            AnalyseurCommentaires analyseur = new AnalyseurCommentaires(fichier, AutomateCommentairesJava.Initial);
+            AnalyseurJava analyseur = new AnalyseurJava(fichier);
             return analyseur.analyser();
         } catch (FileNotFoundException e) {
             System.out.println(e.getMessage());

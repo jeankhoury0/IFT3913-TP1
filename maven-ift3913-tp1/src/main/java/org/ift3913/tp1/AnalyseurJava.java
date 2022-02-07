@@ -1,9 +1,11 @@
 package org.ift3913.tp1;
 
+import org.ift3913.tp1.automates.*;
+
 import java.io.*;
 
 /**
- * Un analyseur de commentaires pour un seul fichier de code.
+ * Un analyseur de codes Java pour un seul fichier de code.
  * <br>
  * Cet analyseur est agnostique sur le langage de programmation à analyser.
  * Cependant, il faut fournir à l'analyseur l'automate correspondant au code
@@ -11,7 +13,7 @@ import java.io.*;
  *
  * @author Pierre Janier Dubry et Rui Jie Liu
  */
-public class AnalyseurCommentaires {
+public class AnalyseurJava {
 
     //region ================================ CHAMPS ================================
 
@@ -25,24 +27,43 @@ public class AnalyseurCommentaires {
     // TODO: utiliser ce BufferedReader pour lire le fichier à analyser
     private BufferedReader fileStream;
 
-    private AutomateCommentaires etatAutomate;
+    private AutomateJava etatAutomateCommentaires;
+    private AutomateJava etatAutomateStrings;
+    private AutomateJava etatAutomateTernaire;
+    private AutomateJava etatAutomateIf;
+    private AutomateJava etatAutomateElse;
+    private AutomateJava etatAutomateWhile;
+    private AutomateJava etatAutomateFor;
+    private AutomateJava etatAutomateSwitch;
 
     //endregion CHAMPS
 
     //region ================================ CONSTRUCTEUR ================================
 
-    public AnalyseurCommentaires(File fichier, AutomateCommentaires etatInitialAutomate) throws FileNotFoundException {
+    public AnalyseurJava(File fichier) throws FileNotFoundException {
         if (!fichier.exists()) throw new FileNotFoundException("Le chemin fourni ne correspond pas à un fichier valide!");
         this.fichier = fichier;
 
-        this.etatAutomate = etatInitialAutomate;
     }
 
     //endregion CONSTRUCTEUR
 
     //region ================================ MÉTHODES ================================
 
+    private void initialiser() {
+        this.etatAutomateCommentaires = AutomateCommentaires.Initial;
+        this.etatAutomateStrings = AutomateStrings.Initial;
+        this.etatAutomateTernaire = AutomateTernaire.Initial;
+        this.etatAutomateIf = AutomateIf.Initial;
+        this.etatAutomateElse = AutomateElse.Initial;
+        this.etatAutomateWhile = AutomateWhile.Initial;
+        this.etatAutomateFor = AutomateFor.Initial;
+        this.etatAutomateSwitch = AutomateSwitch.Initial;
+    }
+
     public ResultatAnalyseFichier analyser() throws FileNotFoundException {
+        initialiser();
+
         // Statistiques à analyser
         int lignesDeCode = 1;
         int lignesCommentaires = 0;
@@ -64,10 +85,10 @@ public class AnalyseurCommentaires {
                 for (int i = 0; i < currentLine.length(); i++) {
                     char nextChar = currentLine.charAt(i);
 
-                    // Obtenir le prochain état de l'automate
-                    etatAutomate = etatAutomate.prochainEtat(nextChar);
+                    // Obtenir le prochain état des automates
+                    etatAutomateCommentaires = etatAutomateCommentaires.prochainEtat(nextChar);
 
-                    if (!isSameLine && etatAutomate.estCommentaire()) {
+                    if (!isSameLine && etatAutomateCommentaires.valide()) {
                         // cette ligne contient un commentaire
                         lignesCommentaires++;
                         isSameLine = true;
@@ -78,7 +99,7 @@ public class AnalyseurCommentaires {
                 // soumettre manuellement le caractère de retour de ligne à l'automate
                 // Ce caractère est simplement un signal à l'automate qu'une fin de ligne est atteinnte
                 // et indépendant de la plateforme sur lequel le programme est exécuté.
-                etatAutomate = etatAutomate.prochainEtat('\n');
+                etatAutomateCommentaires = etatAutomateCommentaires.prochainEtat('\n');
 
                 lignesDeCode++;
             }
